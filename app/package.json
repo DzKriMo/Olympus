@@ -1,0 +1,17 @@
+{
+  "name": "vuln-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Intentionally vulnerable web app for local pentesting agent simulation",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "ws": "^8.18.3"
+  }
+}

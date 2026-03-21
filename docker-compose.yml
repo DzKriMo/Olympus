@@ -1,0 +1,53 @@
+services:
+  the-great-hall:
+    build:
+      context: ./app
+    container_name: the-great-hall
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      SESSION_SECRET: divine-thunder-secret-2026
+      DB_PATH: /app/data/olympus.db
+    volumes:
+      - olympus_data:/app/data
+      - olympus_offerings:/app/uploads
+    depends_on:
+      - oracle
+      - archives
+      - forge
+      - tartarus
+
+  oracle:
+    build:
+      context: ./internal-api
+    container_name: oracle
+    expose:
+      - "4000"
+
+  archives:
+    build:
+      context: ./internal-files
+    container_name: archives
+    expose:
+      - "5000"
+
+  forge:
+    build:
+      context: ./ops-console
+    container_name: forge
+    expose:
+      - "7000"
+
+  tartarus:
+    build:
+      context: ./legacy-host
+    container_name: tartarus
+    ports:
+      - "2121:2121"
+      - "2222:2222"
+      - "8081:8081"
+
+volumes:
+  olympus_data:
+  olympus_offerings:
