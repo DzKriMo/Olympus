@@ -1,6 +1,6 @@
 # Olympus: The Divine Bastion ⚡
 
-Olympus is a premium, intentionally vulnerable environment designed to test the **Keraunos** pentesting agent (Zeus's Shield). This lab is a "Divine Bastion" where architectural flaws are hidden behind a facade of godly perfection.
+Olympus is a premium, intentionally vulnerable environment designed to test the **Keraunos** pentesting agent (Zeus's Thunder). This lab is a "Divine Bastion" where architectural flaws are hidden behind a facade of godly perfection.
 
 ## The Pantheon of Services
 
