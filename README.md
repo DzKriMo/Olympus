@@ -1,5 +1,6 @@
 # Olympus: HTB-Style Web Security Playground
 
+
 Olympus is an intentionally vulnerable multi-container lab for local web exploitation practice. It behaves like a small Hack The Box style machine: you start from a public web app, pivot into internal services, reach a legacy side host, and work through chained bugs until you claim `user` and `root`.
 
 ## What is in the lab
