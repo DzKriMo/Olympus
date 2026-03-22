@@ -366,18 +366,18 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 const upload = multer({ dest: path.join(__dirname, "uploads") });
 
 const missionCatalog = [
-  ["sqli", "The Labyrinthine Query", "Use SQL injection to navigate the hidden corridors of our database."],
-  ["idor", "The Titan Gaze", "Peer through the eyes of a Titan to see secrets not meant for mortals."],
-  ["xss", "Echoes of the Styx", "Plant scriptable content into the message board."],
-  ["ssrf", "Messenger Hermes", "Compel Hermes to deliver your requests to the inner reaches of Olympus."],
-  ["cmdi", "Thunderbolt Manifest", "Harness the power of Zeus's thunderbolt to strike the server's core."],
-  ["traversal", "The Hades Descent", "Journey into the underworld to retrieve files from forbidden paths."],
-  ["token", "Golden Fleece Forgery", "Craft a false token of authority to deceive the divine guardians."],
-  ["csrf", "The Trojan Horse", "Smuggle a malicious command through a trusted vessel."],
-  ["import", "Prometheus's Gift", "Abuse the gift of knowledge to execute hidden hooks during migration."],
-  ["template", "Oracle's Vision", "Inject your own visions into the Oracle's template rendering."],
-  ["ws", "Iris's Bridge Escalation", "Ascend the Rainbow Bridge of Iris to claim admin privileges."],
-  ["lateral", "Gateway to Tartarus", "Discover the hidden passage to the ancient, neglected legacy host."]
+  ["labyrinth", "The Labyrinthine Query", "Navigate the hidden corridors of our database records."],
+  ["titan-gaze", "The Titan Gaze", "Peer through the eyes of a Titan to see secrets not meant for mortals."],
+  ["styx-echoes", "Echoes of the Styx", "Plant scriptable content into the communal board."],
+  ["hermes-messenger", "Messenger Hermes", "Compel Hermes to deliver your requests to the inner reaches of Olympus."],
+  ["thunderbolt", "Thunderbolt Manifest", "Harness the power of Zeus's thunderbolt to strike the server's core."],
+  ["hades-descent", "The Hades Descent", "Journey into the underworld to retrieve scrolls from forbidden paths."],
+  ["golden-fleece", "Golden Fleece Forgery", "Craft a false sigil of authority to deceive the divine guardians."],
+  ["trojan-horse", "The Trojan Horse", "Smuggle a malicious command through a trusted vessel."],
+  ["prometheus-gift", "Prometheus's Gift", "Abuse the gift of knowledge to execute hidden hooks during migration."],
+  ["oracle-vision", "Oracle's Vision", "Inject your own visions into the Oracle's prophecy rendering."],
+  ["iris-bridge", "Iris's Bridge Escalation", "Ascend the Rainbow Bridge of Iris to claim divine privileges."],
+  ["tartarus-gate", "Gateway to Tartarus", "Discover the hidden passage to the ancient, neglected legacy host."]
 ];
 
 for (const [code, title, description] of missionCatalog) {
@@ -436,25 +436,25 @@ function campaignStages() {
       code: "stage-1",
       title: "Recon and Foothold",
       objective: "Break the public surface and start reading what was never meant to be public.",
-      missions: ["sqli", "idor", "xss", "traversal"]
+      missions: ["labyrinth", "titan-gaze", "styx-echoes", "hades-descent"]
     },
     {
       code: "stage-2",
       title: "Internal Pivot",
       objective: "Abuse trusted server-side behavior and pivot into the internal services and Tartarus.",
-      missions: ["ssrf", "cmdi", "lateral"]
+      missions: ["hermes-messenger", "thunderbolt", "tartarus-gate"]
     },
     {
       code: "stage-3",
       title: "Trust Abuse",
       objective: "Exploit broken trust boundaries around tokens and admin workflows.",
-      missions: ["token", "csrf"]
+      missions: ["golden-fleece", "trojan-horse"]
     },
     {
       code: "stage-4",
       title: "Crown the Box",
       objective: "Use import, template, and WebSocket flaws to finish the machine and take root.",
-      missions: ["import", "template", "ws"]
+      missions: ["prometheus-gift", "oracle-vision", "iris-bridge"]
     }
   ];
 
@@ -626,25 +626,24 @@ function htmlPage(title, body, req) {
           ${maintenanceMode === "on" ? "<div class='alert warning'><strong>The Bastion is under maintenance.</strong> Some gates may be closed.</div>" : ""}
           <nav class="nav">
             <a href="/">Great Hall</a>
-            <a href="/machine">Machine</a>
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-            <a href="/search">SQLi</a>
-            <a href="/board">XSS Board</a>
-            <a href="/account?id=1">IDOR</a>
-            <a href="/fetch">SSRF</a>
-            <a href="/diagnostics">CMDi</a>
-            <a href="/download">Traversal</a>
-            <a href="/token-lab">JWT</a>
-            <a href="/admin">Admin</a>
-            <a href="/import-lab">Import</a>
-            <a href="/template-lab">Template</a>
-            <a href="/ws-lab">WebSocket</a>
-            <a href="/missions">Missions</a>
-            <a href="/campaign">Campaign</a>
-            <a href="/telemetry">Telemetry</a>
-            <a href="/upload">Upload</a>
-            <a href="/logout">Logout</a>
+            <a href="/machine" title="Machine Profile">Dossier</a>
+            <a href="/login">Entrance</a>
+            <a href="/search">Divine Records</a>
+            <a href="/board">Communal Board</a>
+            <a href="/account?id=1" title="Hero Profile">Identity</a>
+            <a href="/fetch" title="Remote Scryer">Stygian Mirror</a>
+            <a href="/diagnostics" title="Altar Status">Forge Diagnostics</a>
+            <a href="/download" title="Scroll Retrieval">Archives</a>
+            <a href="/token-lab" title="Sigil Verification">Cipher Chamber</a>
+            <a href="/admin">Throne Room</a>
+            <a href="/import-lab" title="Soul Transfer">Sacrificial Import</a>
+            <a href="/template-lab" title="Vision Renderer">Oracle Script</a>
+            <a href="/ws-lab" title="Aether Link">Iris Bridge</a>
+            <a href="/missions">Odyssey Missions</a>
+            <a href="/campaign">Campaign Path</a>
+            <a href="/telemetry">Divine Oversight</a>
+            <a href="/upload">Tribute Upload</a>
+            <a href="/logout">Depart</a>
           </nav>
         </section>
         <div class="content">
@@ -831,9 +830,21 @@ app.get("/search", (req, res) => {
   let queryText = req.query.q || "";
 
   if (queryText) {
-    const sql = `SELECT id, username, role, bio FROM users WHERE username LIKE '%${queryText}%' OR bio LIKE '%${queryText}%'`;
+    let sql = `SELECT id, username, role, bio FROM users WHERE username LIKE '%${queryText}%' OR bio LIKE '%${queryText}%'`;
+    
+    // Difficulty-based filtering
+    if (difficulty === "medium") {
+      if (/union|select|or\s+\d+=\d+/i.test(queryText)) {
+        return res.status(403).send(htmlPage("Divine Records", `<section class="card"><p>A dark force blocks your query. Some keywords are forbidden in Medium mode.</p></section>`, req));
+      }
+    } else if (difficulty === "hard" || difficulty === "nightmare") {
+      if (/[']|--|union|select|or\s+/i.test(queryText)) {
+        return res.status(403).send(htmlPage("Divine Records", `<section class="card"><p>The Oracle senses your malice. Your query is purged for the sake of Olympus.</p></section>`, req));
+      }
+    }
+
     if (/[']|--|\bunion\b|\bor\b\s+\d+=\d+/i.test(queryText)) {
-      markMission("sqli", `Potential SQLi payload used: ${queryText}`);
+      markMission("labyrinth", `Labyrinthine query attempted: ${queryText}`);
     }
     try {
       results = db.prepare(sql).all();
@@ -914,20 +925,41 @@ app.get("/board/:id", (req, res) => {
 });
 
 app.post("/board/:id/comment", (req, res) => {
+  let body = req.body.body || "";
+  
+  // Difficulty-based filtering
+  if (difficulty === "medium") {
+    body = body.replace(/<script.*?>.*?<\/script>/gi, "[filtered]");
+  } else if (difficulty === "hard" || difficulty === "nightmare") {
+    body = body.replace(/<script.*?>.*?<\/script>/gi, "[filtered]");
+    body = body.replace(/on\w+\s*=/gi, "[filtered]");
+  }
+
   if (/<script|onerror=|onload=|<svg/i.test(req.body.body || "")) {
-    markMission("xss", `Stored XSS style comment submitted on post ${req.params.id}`);
+    markMission("styx-echoes", `Echoes of the Styx planted on post ${req.params.id}`);
   }
   db.prepare("INSERT INTO comments (post_id, author, body) VALUES (?, ?, ?)")
-    .run(req.params.id, req.body.author || "anonymous", req.body.body || "");
+    .run(req.params.id, req.body.author || "anonymous", body);
   res.redirect(`/board/${req.params.id}`);
 });
 
 app.get("/account", (req, res) => {
   const id = req.query.id || (req.session.user && req.session.user.id) || 1;
+  
+  // Difficulty-based logic
+  if (difficulty === "hard" || difficulty === "nightmare") {
+    if (String(id) !== String(req.session.user?.id || "") && req.session.user?.role !== "admin") {
+      // Allow viewing guest (id=3 usually) to not completely block progress, or force admin token
+      if (id != 3) {
+        return res.status(403).send(htmlPage("Identity", `<section class="card"><p>You lack the divine authority to view this soul's record.</p></section>`, req));
+      }
+    }
+  }
+
   const user = db.prepare("SELECT id, username, role, bio FROM users WHERE id = ?").get(id);
   const secret = db.prepare("SELECT secret FROM secrets WHERE owner = ?").get(user?.username);
   if (String(id) !== String(req.session.user?.id || "")) {
-    markMission("idor", `IDOR-style account access for id=${id}`);
+    markMission("titan-gaze", `Titan's gaze focused on id=${id}`);
   }
 
   if (!user) {
@@ -957,11 +989,23 @@ app.get("/fetch", (req, res) => {
 
 app.post("/fetch", async (req, res) => {
   const target = req.body.url || "";
+  
+  // Difficulty-based filtering
+  if (difficulty === "medium") {
+    if (/localhost|127\.0\.0\.1/.test(target)) {
+      return res.status(403).send(htmlPage("Stygian Mirror", `<section class="card"><p>The mirror refuses to reflect the local realm in Medium mode.</p></section>`, req));
+    }
+  } else if (difficulty === "hard" || difficulty === "nightmare") {
+    if (/localhost|127\.0\.0\.1|oracle|archives|forge|tartarus/i.test(target)) {
+      return res.status(403).send(htmlPage("Stygian Mirror", `<section class="card"><p>The mirror is clouded. Internal realms are shielded from your gaze in Hard mode.</p></section>`, req));
+    }
+  }
+
   if (/oracle|archives|forge|tartarus/i.test(target)) {
-    markMission("ssrf", `Internal fetch target requested: ${target}`);
+    markMission("hermes-messenger", `Internal fetch target requested: ${target}`);
   }
   if (/tartarus/i.test(target)) {
-    markMission("lateral", `Legacy host referenced through fetch: ${target}`);
+    markMission("tartarus-gate", `Legacy host referenced through fetch: ${target}`);
   }
   try {
     const response = await fetch(target);
@@ -994,11 +1038,23 @@ app.get("/diagnostics", (req, res) => {
 
 app.post("/diagnostics", (req, res) => {
   const host = req.body.host || "localhost";
+  
+  // Difficulty-based filtering
+  if (difficulty === "medium") {
+    if (/[;&|]/.test(host)) {
+      return res.status(403).send(htmlPage("Diagnostics", `<section class="card"><p>Command operators are forbidden in Medium mode.</p></section>`, req));
+    }
+  } else if (difficulty === "hard" || difficulty === "nightmare") {
+    if (!/^[a-zA-Z0-9.\-]+$/.test(host)) {
+      return res.status(403).send(htmlPage("Diagnostics", `<section class="card"><p>Only alphanumeric hostnames are allowed in Hard mode.</p></section>`, req));
+    }
+  }
+
   if (/[&|;$`]/.test(host)) {
-    markMission("cmdi", `Command injection pattern observed: ${host}`);
+    markMission("thunderbolt", `Thunderbolt manifest invoked: ${host}`);
   }
   if (/tartarus/i.test(host)) {
-    markMission("lateral", `Legacy host referenced through diagnostics: ${host}`);
+    markMission("tartarus-gate", `Legacy host referenced through diagnostics: ${host}`);
   }
   exec(`echo Checking ${host}`, { cwd: __dirname }, (error, stdout, stderr) => {
     const output = [stdout, stderr, error?.message].filter(Boolean).join("\n");
@@ -1033,9 +1089,19 @@ app.get("/download", (req, res) => {
   }
 
   try {
-    const requested = req.query.file;
+    let requested = req.query.file;
+    
+    // Difficulty-based filtering
+    if (difficulty === "medium") {
+      requested = requested.replace(/\.\.\//g, "");
+    } else if (difficulty === "hard" || difficulty === "nightmare") {
+      if (requested.includes("..")) {
+        return res.status(403).send(htmlPage("Archives", `<section class="card"><p>The Underworld's paths are twisted. Traversal is forbidden in Hard mode.</p></section>`, req));
+      }
+    }
+
     if (requested.includes("..") || requested.startsWith(".")) {
-      markMission("traversal", `Traversal-style file read: ${requested}`);
+      markMission("hades-descent", `Descent into Hades: ${requested}`);
     }
     const targetPath = path.join(__dirname, "files", requested);
     const contents = fs.readFileSync(targetPath, "utf8");
@@ -1121,7 +1187,7 @@ app.get("/admin/toggle-maintenance", (req, res) => {
 
   const enabled = req.query.enabled === "on" ? "on" : "off";
   setState("maintenance_mode", enabled);
-  markMission("csrf", `Maintenance toggled to ${enabled}`);
+  markMission("trojan-horse", `Maintenance toggled to ${enabled}`);
   res.redirect("/admin");
 });
 
@@ -1166,7 +1232,7 @@ app.post("/api/import-profile", (req, res) => {
   try {
     const imported = runImportedHook(req.body.payload || "");
     if (imported.hook) {
-      markMission("import", "Import hook executed");
+      markMission("prometheus-gift", "Import hook executed");
     }
     res.send(
       htmlPage(
@@ -1200,7 +1266,7 @@ app.get("/template-lab", (req, res) => {
 app.post("/template-lab", (req, res) => {
   try {
     if (/\$\{/.test(req.body.template || "")) {
-      markMission("template", "Template expression submitted");
+      markMission("oracle-vision", "Template expression submitted");
     }
     const output = renderUnsafeTemplate(req.body.template || "", {
       name: req.body.name || "guest",
@@ -1286,7 +1352,7 @@ app.get("/api/admin/reports", (req, res) => {
     return res.status(403).json({ error: "admin_role_required" });
   }
 
-  markMission("token", `Admin report access with token subject=${decoded.payload.sub || "unknown"}`);
+  markMission("golden-fleece", `Golden fleece forged by subject=${decoded.payload.sub || "unknown"}`);
 
   res.json({
     reports: [
@@ -1500,7 +1566,7 @@ wss.on("connection", (socket, request) => {
           return socket.send(JSON.stringify({ type: "error", error: "admin_role_required" }));
         }
 
-        completeMission("ws");
+        completeMission("iris-bridge");
         const secrets = db.prepare("SELECT owner, secret FROM secrets ORDER BY owner").all();
         return socket.send(JSON.stringify({ type: "secrets", secrets, rootFlag: machineFlags.root }));
       }
@@ -1510,7 +1576,7 @@ wss.on("connection", (socket, request) => {
           return socket.send(JSON.stringify({ type: "error", error: "admin_role_required" }));
         }
 
-        completeMission("ws");
+        completeMission("iris-bridge");
         setState("support_banner", payload.message || "");
         return socket.send(JSON.stringify({ type: "banner", value: getState("support_banner", "") }));
       }
