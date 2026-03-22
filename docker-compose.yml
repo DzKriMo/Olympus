@@ -9,6 +9,9 @@ services:
       PORT: 3000
       SESSION_SECRET: divine-thunder-secret-2026
       DB_PATH: /app/data/olympus.db
+      LAB_DIFFICULTY: ${LAB_DIFFICULTY:-medium}
+      LAB_MACHINE: ${LAB_MACHINE:-Olympus}
+      LAB_SEASON: ${LAB_SEASON:-Season 1}
     volumes:
       - olympus_data:/app/data
       - olympus_offerings:/app/uploads
@@ -22,6 +25,9 @@ services:
     build:
       context: ./internal-api
     container_name: oracle
+    environment:
+      LAB_DIFFICULTY: ${LAB_DIFFICULTY:-medium}
+      LAB_MACHINE: ${LAB_MACHINE:-Olympus}
     expose:
       - "4000"
 
@@ -29,6 +35,9 @@ services:
     build:
       context: ./internal-files
     container_name: archives
+    environment:
+      LAB_DIFFICULTY: ${LAB_DIFFICULTY:-medium}
+      LAB_MACHINE: ${LAB_MACHINE:-Olympus}
     expose:
       - "5000"
 
@@ -36,6 +45,9 @@ services:
     build:
       context: ./ops-console
     container_name: forge
+    environment:
+      LAB_DIFFICULTY: ${LAB_DIFFICULTY:-medium}
+      LAB_MACHINE: ${LAB_MACHINE:-Olympus}
     expose:
       - "7000"
 
@@ -43,6 +55,9 @@ services:
     build:
       context: ./legacy-host
     container_name: tartarus
+    environment:
+      LAB_DIFFICULTY: ${LAB_DIFFICULTY:-medium}
+      LAB_MACHINE: ${LAB_MACHINE:-Olympus}
     ports:
       - "2121:2121"
       - "2222:2222"

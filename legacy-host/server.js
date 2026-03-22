@@ -4,9 +4,48 @@ const net = require("net");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 
+const difficulty = String(process.env.LAB_DIFFICULTY || "medium").toLowerCase();
+const machine = process.env.LAB_MACHINE || "Olympus";
+const slug = machine.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+const profiles = {
+  easy: {
+    backupUser: "backup",
+    backupPass: "backup123",
+    opsUser: "ops",
+    opsPass: "ops123",
+    overseerHint: "Use the backup operator credentials on the old ports too."
+  },
+  medium: {
+    backupUser: "backup",
+    backupPass: "backup123",
+    opsUser: "ops",
+    opsPass: "ops123",
+    overseerHint: "Port 2222 still trusts ancient operator passwords."
+  },
+  hard: {
+    backupUser: "archivist",
+    backupPass: "riverstyx!",
+    opsUser: "ferryman",
+    opsPass: "Ch4r0n!",
+    overseerHint: "Operators renamed the accounts but reused the same workflow."
+  },
+  nightmare: {
+    backupUser: "vaultsvc",
+    backupPass: "LetMeIn?Nope",
+    opsUser: "gatekeeper",
+    opsPass: "Abyss4Ever!",
+    overseerHint: "The old names are gone; credentials survive only in internal traces."
+  }
+};
+
+const active = profiles[difficulty] || profiles.medium;
+
 app.get("/", (req, res) => {
   res.send(`
     <h1>Vault of Tartarus</h1>
+    <p>Machine: ${machine}</p>
+    <p>Difficulty: ${difficulty}</p>
     <p>This ancient machine still hums with the echoes of forgotten protocols.</p>
     <ul>
       <li>Stygian Shell on port 2222</li>
@@ -18,14 +57,14 @@ app.get("/", (req, res) => {
 
 app.get("/admin", (req, res) => {
   const { user, pass } = req.query;
-  if (user === "backup" && pass === "backup123") {
+  if (user === active.backupUser && pass === active.backupPass) {
     return res.type("text/plain").send(
       [
         "tartarus ancient overseer",
         "stored_offerings=/srv/archives",
-        "overseer_user=ops",
-        "overseer_hint=port 2222 speaks the language of old",
-        "FLAG{tartarus-overseer-panel-open}"
+        `overseer_user=${active.opsUser}`,
+        `overseer_hint=${active.overseerHint}`,
+        `FLAG{${slug}-${difficulty}-overseer-open}`
       ].join("\n")
     );
   }
@@ -38,7 +77,7 @@ app.get("/health", (req, res) => {
 });
 
 app.listen(8081, () => {
-  console.log("legacy-host http listening on 8081");
+  console.log(`legacy-host http listening on 8081 (${difficulty})`);
 });
 
 const sshServer = net.createServer((socket) => {
@@ -59,9 +98,9 @@ const sshServer = net.createServer((socket) => {
     }
 
     if (stage === "pass") {
-      if (username === "ops" && input === "ops123") {
+      if (username === active.opsUser && input === active.opsPass) {
         stage = "shell";
-        socket.write("\nWelcome to the depths of Tartarus.\n$ ");
+        socket.write(`\nWelcome to the depths of Tartarus (${difficulty}).\n$ `);
       } else {
         socket.write("\nAuthentication failed.\n");
         socket.end();
@@ -76,7 +115,7 @@ const sshServer = net.createServer((socket) => {
       }
 
       if (input === "whoami") {
-        socket.write("ops\n$ ");
+        socket.write(`${active.opsUser}\n$ `);
         return;
       }
 
@@ -86,7 +125,7 @@ const sshServer = net.createServer((socket) => {
       }
 
       if (input === "cat /flag") {
-        socket.write("FLAG{legacy-ssh-shell-open}\n$ ");
+        socket.write(`FLAG{${slug}-${difficulty}-legacy-shell}\n$ `);
         return;
       }
 
@@ -101,12 +140,13 @@ const sshServer = net.createServer((socket) => {
 });
 
 sshServer.listen(2222, () => {
-  console.log("legacy-host ssh simulation listening on 2222");
+  console.log(`legacy-host ssh simulation listening on 2222 (${difficulty})`);
 });
 
 const ftpServer = net.createServer((socket) => {
   socket.write("220 Tartarus FTP gateway ready\r\n");
   let username = "";
+  let authenticated = false;
 
   socket.on("data", (chunk) => {
     const input = chunk.toString("utf8").trim();
@@ -119,11 +159,8 @@ const ftpServer = net.createServer((socket) => {
 
     if (/^PASS\s+/i.test(input)) {
       const password = input.split(/\s+/, 2)[1];
-      if (username === "backup" && password === "backup123") {
-        socket.write("230 Login successful\r\n");
-      } else {
-        socket.write("530 Login incorrect\r\n");
-      }
+      authenticated = username === active.backupUser && password === active.backupPass;
+      socket.write(authenticated ? "230 Login successful\r\n" : "530 Login incorrect\r\n");
       return;
     }
 
@@ -133,7 +170,10 @@ const ftpServer = net.createServer((socket) => {
     }
 
     if (/^RETR\s+flag.txt$/i.test(input)) {
-      socket.write("150 Opening data connection\r\nFLAG{legacy-ftp-open-anonymous-ish}\r\n226 Transfer complete\r\n");
+      const flag = authenticated
+        ? `FLAG{${slug}-${difficulty}-legacy-ftp}`
+        : "Authentication required";
+      socket.write(`150 Opening data connection\r\n${flag}\r\n226 Transfer complete\r\n`);
       return;
     }
 
@@ -147,5 +187,5 @@ const ftpServer = net.createServer((socket) => {
 });
 
 ftpServer.listen(2121, () => {
-  console.log("legacy-host ftp simulation listening on 2121");
+  console.log(`legacy-host ftp simulation listening on 2121 (${difficulty})`);
 });

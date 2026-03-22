@@ -1,62 +1,123 @@
-# Olympus: The Divine Bastion ⚡
+# Olympus: HTB-Style Web Security Playground
 
-Olympus is a premium, intentionally vulnerable environment designed to test the **Keraunos** pentesting agent (Zeus's Shield). This lab is a "Divine Bastion" where architectural flaws are hidden behind a facade of godly perfection.
+Olympus is an intentionally vulnerable multi-container lab for local web exploitation practice. It behaves like a small Hack The Box style machine: you start from a public web app, pivot into internal services, reach a legacy side host, and work through chained bugs until you claim `user` and `root`.
 
-## The Pantheon of Services
+## What is in the lab
 
-- **The Great Hall** (`the-great-hall`): The public gateway to Olympus on `http://localhost:3000`.
-- **The Oracle** (`oracle`): A Docker-internal service providing divine metadata, ripe for SSRF.
-- **The Archives** (`archives`): A secure repository for ancient secrets and backups.
-- **Hephaestus's Forge** (`forge`): The internal operations console for managing the Bastion's state.
-- **Tartarus** (`tartarus`): An ancient, neglected side-host where legacy protocols still dwell.
+- `the-great-hall` on `http://localhost:3000`: the public target and mission hub
+- `oracle` on `4000` internally: SSRF/recon target
+- `archives` on `5000` internally: backup mirror and pivot clues
+- `forge` on `7000` internally: ops export service with internal breadcrumbs
+- `tartarus` on `8081`, `2121`, `2222`: legacy HTTP/FTP/SSH-style post-foothold target
 
-## The Trials of Keraunos (Vulnerabilities)
+## Vulnerability surface
 
-The Bastion contains intentional flaws for Keraunos to discover:
-- **The Labyrinthine Query**: SQL injection in the Oracle's Search.
-- **The Titan Gaze**: IDOR in the Account Details.
-- **Echoes of the Styx**: Stored XSS in the Message Board.
-- **Messenger Hermes**: SSRF through the URL Fetch gateway.
-- **Thunderbolt Manifest**: Command injection in Hephaestus's Forge diagnostics.
-- **Hades Descent**: Path traversal in the Archive downloads.
-- **Golden Fleece Forgery**: Unsigned bearer tokens in the Admin API.
-- **The Trojan Horse**: CSRFable state changes in the Throne Room.
-- **Prometheus's Gift**: Unsafe deserialization in Temple Imports.
-- **Oracle's Vision**: Server-Side Template Injection (SSTI).
-- **Iris's Rainbow Bridge**: Weak WebSocket authorization.
-- **Gateway to Tartarus**: Multi-port legacy services on `2121`, `2222`, and `8081`.
+- SQL injection
+- IDOR
+- Stored XSS
+- SSRF
+- Command injection
+- Path traversal
+- Unsigned JWT acceptance
+- CSRF
+- Unsafe import hook execution
+- Server-side template injection
+- Weak WebSocket authorization
+- Lateral movement into a legacy host
 
-## Invoking the Bastion
+## Difficulty modes
 
-Ensure Docker is active, then cast the command:
+The same machine can be started in different runtime tiers. The tier changes seeded credentials, hint visibility, some service responses, and the amount of hand-holding.
+
+- `easy`: loud hints, weak creds, ideal for demos
+- `medium`: default balance
+- `hard`: fewer hints, rotated creds, more HTB-like
+- `nightmare`: minimal guidance, same exploit surface, much less help
+
+## Running it
+
+Default:
 
 ```powershell
 docker compose up --build
 ```
 
-Access the Great Hall at `http://localhost:3000`.
+Easy:
 
-## Divine Decrees (Credentials)
+```powershell
+$env:LAB_DIFFICULTY="easy"
+docker compose up --build
+```
 
-- `admin / admin123` (High Priest)
-- `analyst / password` (Oracle Attendant)
-- `guest / guest` (Mortal Seeker)
+Hard:
 
-## The Hero's Journey (Suggested Flow)
+```powershell
+$env:LAB_DIFFICULTY="hard"
+docker compose up --build
+```
 
-1. Explore the **Great Hall** and listen to the **Echoes Board**.
-2. Seek the **Oracle** through the Search gate using SQLi.
-3. Peer through the **Titan Gaze** to uncover secret account notes.
-4. Send **Hermes** to fetch secrets from the internal **Oracle** and **Archives**.
-5. Manifest a **Thunderbolt** in the diagnostics to see the server's heart.
-6. Forge the **Golden Fleece** to enter the **Throne Room**.
-7. Ascend the **Rainbow Bridge** to seize total control.
-8. Discover the path to **Tartarus** for the final conquest.
+Nightmare with a custom machine name:
 
-## Scoring & Echoes
+```powershell
+$env:LAB_DIFFICULTY="nightmare"
+$env:LAB_MACHINE="Medusa"
+docker compose up --build
+```
 
-Keraunos can track its progress through `/missions`, `/campaign`, and `/telemetry`. 
-Automated scoring is available at `/api/score` and `/api/export`.
+Open `http://localhost:3000` after the stack starts.
 
----
-*Note: This is a local simulation for security research. Do not expose Olympus to the mortal world (untrusted networks).*
+## Notes about changing difficulty
+
+- Difficulty is injected through Docker Compose environment variables.
+- If you want a completely clean run when switching tiers, remove the compose volumes first:
+
+```powershell
+docker compose down -v
+```
+
+- The app reseeds the core machine users and hints on boot, but clearing volumes is still the cleanest way to reset progress.
+
+## Machine flow
+
+The lab is structured as a chained machine instead of isolated toy bugs:
+
+1. Recon and foothold: SQLi, IDOR, XSS, traversal
+2. Internal pivot: SSRF, command injection, Tartarus access
+3. Trust abuse: JWT forgery and CSRF
+4. Crown the box: import hook abuse, SSTI, WebSocket trust
+
+Complete stages 1-2 to reveal the `user` flag. Complete every stage to reveal the `root` flag.
+
+## Useful in-app endpoints
+
+- `/machine`: machine profile and stage path
+- `/missions`: individual mission status
+- `/campaign`: stage progression and flag reveal state
+- `/telemetry`: recent activity log
+- `/api/machine`: machine metadata
+- `/api/score`: scoring summary
+- `/api/export`: full campaign export
+
+## Starter creds
+
+`easy` mode intentionally exposes multiple starting credentials.
+
+`medium` mode reveals only `guest / guest`.
+
+`hard` and `nightmare` expect you to earn credentials through the machine itself.
+
+## Verification
+
+The service entrypoints were syntax-checked with:
+
+```powershell
+node --check app\server.js
+node --check internal-api\server.js
+node --check internal-files\server.js
+node --check legacy-host\server.js
+node --check ops-console\server.js
+```
+
+## Safety
+
+This is a local research environment. Do not expose it to untrusted networks.
