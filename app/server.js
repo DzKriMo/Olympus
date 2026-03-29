@@ -617,7 +617,7 @@ function htmlPage(title, body, req) {
     <body>
       <main class="shell">
         <section class="hero">
-          <span class="pill">HTB Playground</span>
+          <span class="pill">Websec Playground</span>
           <span class="pill">${escapeHtml(machineName)}</span>
           <span class="pill">${escapeHtml(activeProfile.label)}</span>
           <h1>${escapeHtml(title)}</h1>

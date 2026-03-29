@@ -9,7 +9,7 @@ services:
       PORT: 3000
       SESSION_SECRET: divine-thunder-secret-2026
       DB_PATH: /app/data/olympus.db
-      LAB_DIFFICULTY: ${LAB_DIFFICULTY:-medium}
+      LAB_DIFFICULTY: ${LAB_DIFFICULTY:-hard}
       LAB_MACHINE: ${LAB_MACHINE:-Olympus}
       LAB_SEASON: ${LAB_SEASON:-Season 1}
     volumes:
